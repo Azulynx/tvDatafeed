@@ -314,7 +314,7 @@ class TvDatafeed:
 
         return self.__create_df(raw_data, symbol)
 
-    def search_symbol(self, text: str, type: str = '', exchange: str = ''):
+    def search_symbol(self, text: str, exchange: str = ''):
         """
         Cerca simboli utilizzando il nuovo endpoint TradingView Symbol Search V3.
         """
@@ -322,8 +322,6 @@ class TvDatafeed:
         
         # Pulizia dei parametri
         symbol = clean_text(text)
-        if type:
-            type = clean_text(type)
         if exchange:
             exchange = clean_text(exchange)
         
@@ -335,8 +333,6 @@ class TvDatafeed:
             "promo": "true"
         }
 
-        if type:
-            params["search_type"] = type
         if exchange:
             params["exchange"] = exchange
             
@@ -393,6 +389,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
