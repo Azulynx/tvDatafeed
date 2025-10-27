@@ -9,6 +9,17 @@ import pandas as pd
 from websocket import create_connection
 import requests
 import json
+import pandas as pd
+import requests
+import re # Necessario per la funzione clean_text
+import logging
+# ... altre importazioni di main.py ...
+
+def clean_text(text: str) -> str:
+    """
+    Pulisce il testo rimuovendo i tag HTML e normalizzando.
+    """
+    return re.sub(r'<[^>]+>', '', text or '').upper().replace('&', '_').replace(' ', '_')
 
 logger = logging.getLogger(__name__)
 
@@ -321,9 +332,7 @@ class TvDatafeed:
 
         return symbols_list
         '''
-
-    # Modifica nel tuo main.py
-
+    '''
     def search_symbol(self, text: str, exchange: str = ''):
         url = self.__search_url.format(text, exchange)
 
@@ -344,6 +353,59 @@ class TvDatafeed:
             logger.error(f"Error during symbol search: {e}")
 
         return symbols_list
+        '''
+    def search_symbol(self, text: str, exchange: str = ''):
+        """
+        Cerca simboli utilizzando il nuovo endpoint TradingView Symbol Search V3.
+        """
+        url = "https://symbol-search.tradingview.com/symbol_search/v3/"
+        
+        # Pulizia dei parametri
+        symbol = clean_text(text)
+        if exchange:
+            exchange = clean_text(exchange)
+        
+        params = {
+            "text": symbol,
+            "hl": "1",
+            "search_type": "undefined",
+            "domain": "production",
+            "promo": "true"
+        }
+        
+        if exchange:
+            params["exchange"] = exchange
+            
+        # Intestazioni cruciali per bypassare il blocco
+        headers = {
+            "Origin": "https://www.tradingview.com",
+            # Aggiungi un user-agent comune per sembrare un browser
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        
+        try:
+            # Rimuoviamo il loop di retry per semplicità, ma è buona norma mantenerlo
+            response = requests.get(url, params=params, headers=headers, timeout=10)
+            response.raise_for_status() # Genera un errore per 4xx/5xx
+
+            data = response.json()
+            
+            if 'symbols' in data:
+                # Converte la lista di dizionari in un DataFrame Pandas
+                # e filtra i campi per mantenere la coerenza con l'output storico di tvDatafeed
+                df = pd.DataFrame(data['symbols'])
+                return df[['symbol', 'description', 'type', 'exchange', 'currency_code', 'country']]
+            else:
+                logging.warning("Search failed: 'symbols' field not found in response.")
+                return pd.DataFrame()
+            
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Search failed (Request Error): {e}")
+            return pd.DataFrame() 
+        except json.JSONDecodeError:
+            logging.error("Search failed: Received non-JSON response from server.")
+            return pd.DataFrame()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -359,6 +421,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
