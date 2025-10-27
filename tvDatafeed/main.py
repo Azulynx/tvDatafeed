@@ -443,9 +443,9 @@ class TvDatafeed:
                 
                 # --- AGGIUNGI QUESTE RIGHE PER LA PULIZIA ---
                 # Applica clean_text alla colonna 'description'
-                df['description'] = df['description'].apply(clean_text)
+                df['description'] = df['description'].apply(TvDatafeed.clean_text)
                 # [OPZIONALE] Applica clean_text anche a 'symbol' se necessario
-                df['symbol'] = df['symbol'].apply(clean_text)
+                df['symbol'] = df['symbol'].apply(TvDatafeed.clean_text)
                 # ---------------------------------------------
                 
                 return df[['symbol', 'description', 'type', 'exchange', 'currency_code', 'country']]
@@ -475,6 +475,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
