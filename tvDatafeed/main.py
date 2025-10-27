@@ -304,7 +304,7 @@ class TvDatafeed:
 
         return symbols_list
         '''
-
+    '''
     def search_symbol(self, text: str, exchange: str = ''):
         url = self.__search_url.format(text, exchange)
 
@@ -320,7 +320,30 @@ class TvDatafeed:
             logger.error(e)
 
         return symbols_list
+        '''
 
+    # Modifica nel tuo main.py
+
+    def search_symbol(self, text: str, exchange: str = ''):
+        url = self.__search_url.format(text, exchange)
+
+        symbols_list = []
+        try:
+            # Tenta la richiesta GET standard (ancora la più semplice)
+            resp = requests.get(url)
+
+            # Controlla se la risposta è valida prima di provare il JSON
+            if resp.text and resp.text.startswith('['): # Controlla che non sia vuota e che sia JSON
+                 symbols_list = json.loads(resp.text.replace(
+                     '</em>', '').replace('<em>', ''))
+            else:
+                 # Questo codice verrà eseguito se la risposta è una stringa vuota o HTML
+                 logger.warning("Search failed: received non-JSON or empty response.")
+
+        except Exception as e:
+            logger.error(f"Error during symbol search: {e}")
+
+        return symbols_list
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -336,6 +359,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
