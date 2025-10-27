@@ -15,35 +15,27 @@ import re # Necessario per la funzione clean_text
 import logging
 # ... altre importazioni di main.py ...
 
-'''
 def clean_text(text: str) -> str:
-    """
-    Pulisce il testo rimuovendo i tag HTML e normalizzando.
-    """
-    return re.sub(r'<[^>]+>', '', text or '').upper().replace('&', '_').replace(' ', '_')
-    '''
-'''
-def clean_text(text: str) -> str:
-    """
-    Pulisce il testo rimuovendo i tag HTML (es. <em>), entità, 
-    e normalizza i simboli e spazi.
-    """
-    if not text:
-        return ""
-    # 1. Rimuove specificamente i tag <em> e </em>
-    cleaned_text = text.replace('<em>', '').replace('</em>', '')
-    # 2. Rimuove tutti gli altri tag HTML generici (assicurazione)
-    cleaned_text = re.sub(r'<[^>]+>', '', cleaned_text)
-    # 3. Pulisce le entità HTML comuni (es. &amp;) e normalizza
-    cleaned_text = (
-        cleaned_text
-        .replace('&amp;', '&')  # Decodifica l'entità &amp;
-        .upper()
-        .replace('&', '_')
-        .replace(' ', '_')
-    )
-    return cleaned_text
-    '''
+        """
+        Pulisce il testo rimuovendo i tag HTML (es. <em>), entità, 
+        e normalizza i simboli e spazi.
+        """
+        if not text:
+            return ""
+        # 1. Rimuove specificamente i tag <em> e </em>
+        cleaned_text = text.replace('<em>', '').replace('</em>', '')
+        # 2. Rimuove tutti gli altri tag HTML generici (assicurazione)
+        cleaned_text = re.sub(r'<[^>]+>', '', cleaned_text)
+        # 3. Pulisce le entità HTML comuni (es. &amp;) e normalizza
+        
+        cleaned_text = (
+            cleaned_text
+            .replace('&amp;', '&')  # Decodifica l'entità &amp;
+            #.upper()
+            #.replace('&', '_')
+            #.replace(' ', '_')
+        )
+        return cleaned_text
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +63,7 @@ class TvDatafeed:
     __signin_headers = {'Referer': 'https://www.tradingview.com'}
     __ws_timeout = 5
 
+    '''
     @staticmethod
     def clean_text(text: str) -> str:
         """
@@ -93,6 +86,7 @@ class TvDatafeed:
             #.replace(' ', '_')
         )
         return cleaned_text
+        '''
     
     def __init__(
         self,
@@ -347,60 +341,6 @@ class TvDatafeed:
 
         return self.__create_df(raw_data, symbol)
 
-    '''
-    def search_symbol(self, text: str, exchange: str = ''):
-        url = self.__search_url.format(text, exchange)
-
-        symbols_list = []
-        try:
-            resp = requests.get(url)
-
-            symbols_list = json.loads(resp.text.replace(
-                '</em>', '').replace('<em>', ''))
-        except Exception as e:
-            logger.error(e)
-
-        return symbols_list
-        '''
-    '''
-    def search_symbol(self, text: str, exchange: str = ''):
-        url = self.__search_url.format(text, exchange)
-
-        symbols_list = []
-        try:
-            resp = requests.get(url)
-
-            # RIGA MODIFICATA: Il problema era qui. Togliamo i replace() 
-            # che potrebbero confondere il parser JSON se la risposta è vuota o HTML.
-            symbols_list = json.loads(resp.text) # <-- MODIFICA!
-
-        except Exception as e:
-            logger.error(e)
-
-        return symbols_list
-        '''
-    '''
-    def search_symbol(self, text: str, exchange: str = ''):
-        url = self.__search_url.format(text, exchange)
-
-        symbols_list = []
-        try:
-            # Tenta la richiesta GET standard (ancora la più semplice)
-            resp = requests.get(url)
-
-            # Controlla se la risposta è valida prima di provare il JSON
-            if resp.text and resp.text.startswith('['): # Controlla che non sia vuota e che sia JSON
-                 symbols_list = json.loads(resp.text.replace(
-                     '</em>', '').replace('<em>', ''))
-            else:
-                 # Questo codice verrà eseguito se la risposta è una stringa vuota o HTML
-                 logger.warning("Search failed: received non-JSON or empty response.")
-
-        except Exception as e:
-            logger.error(f"Error during symbol search: {e}")
-
-        return symbols_list
-        '''
     def search_symbol(self, text: str, exchange: str = ''):
         """
         Cerca simboli utilizzando il nuovo endpoint TradingView Symbol Search V3.
@@ -444,23 +384,13 @@ class TvDatafeed:
                 
                 # --- AGGIUNGI QUESTE RIGHE PER LA PULIZIA ---
                 # Applica clean_text alla colonna 'description'
-                df['description'] = df['description'].apply(TvDatafeed.clean_text)
+                #df['description'] = df['description'].apply(TvDatafeed.clean_text)
+                df['description'] = df['description'].apply(clean_text)
                 # [OPZIONALE] Applica clean_text anche a 'symbol' se necessario
-                df['symbol'] = df['symbol'].apply(TvDatafeed.clean_text)
+                #df['symbol'] = df['symbol'].apply(TvDatafeed.clean_text)
+                df['symbol'] = df['symbol'].apply(clean_text)
                 # ---------------------------------------------
-                
-                '''
-                # === SOLUZIONE: Pulizia Diretta con .str.replace() ===
-                # Rimuove i tag <em> e </em>
-                df['description'] = df['description'].str.replace('<em>', '', regex=False).str.replace('</em>', '', regex=False)
-                df['symbol'] = df['symbol'].str.replace('<em>', '', regex=False).str.replace('</em>', '', regex=False)
-    
-                # Esegui la NORMALIZZAZIONE (UPPERCASE, SPAZI, ecc.) su queste colonne
-                # Puoi usare la funzione .str.upper() di Pandas
-                df['description'] = df['description'].str.upper().str.replace(' ', '_')
-                df['symbol'] = df['symbol'].str.upper().str.replace(' ', '_')
-                '''
-                
+              
                 return df[['symbol', 'description', 'type', 'exchange', 'currency_code', 'country']]
             else:
                 logging.warning("Search failed: 'symbols' field not found in response.")
@@ -488,6 +418,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
