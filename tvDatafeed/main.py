@@ -440,13 +440,24 @@ class TvDatafeed:
                 # Converte la lista di dizionari in un DataFrame Pandas
                 # e filtra i campi per mantenere la coerenza con l'output storico di tvDatafeed
                 df = pd.DataFrame(data['symbols'])
-                
+                '''
                 # --- AGGIUNGI QUESTE RIGHE PER LA PULIZIA ---
                 # Applica clean_text alla colonna 'description'
                 df['description'] = df['description'].apply(TvDatafeed.clean_text)
                 # [OPZIONALE] Applica clean_text anche a 'symbol' se necessario
                 df['symbol'] = df['symbol'].apply(TvDatafeed.clean_text)
                 # ---------------------------------------------
+                '''
+
+                # === SOLUZIONE: Pulizia Diretta con .str.replace() ===
+                # Rimuove i tag <em> e </em>
+                df['description'] = df['description'].str.replace('<em>', '', regex=False).str.replace('</em>', '', regex=False)
+                df['symbol'] = df['symbol'].str.replace('<em>', '', regex=False).str.replace('</em>', '', regex=False)
+    
+                # Esegui la NORMALIZZAZIONE (UPPERCASE, SPAZI, ecc.) su queste colonne
+                # Puoi usare la funzione .str.upper() di Pandas
+                df['description'] = df['description'].str.upper().str.replace(' ', '_')
+                df['symbol'] = df['symbol'].str.upper().str.replace(' ', '_')
                 
                 return df[['symbol', 'description', 'type', 'exchange', 'currency_code', 'country']]
             else:
@@ -475,6 +486,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
