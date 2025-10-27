@@ -289,6 +289,7 @@ class TvDatafeed:
 
         return self.__create_df(raw_data, symbol)
 
+    '''
     def search_symbol(self, text: str, exchange: str = ''):
         url = self.__search_url.format(text, exchange)
 
@@ -298,6 +299,23 @@ class TvDatafeed:
 
             symbols_list = json.loads(resp.text.replace(
                 '</em>', '').replace('<em>', ''))
+        except Exception as e:
+            logger.error(e)
+
+        return symbols_list
+        '''
+
+        def search_symbol(self, text: str, exchange: str = ''):
+        url = self.__search_url.format(text, exchange)
+
+        symbols_list = []
+        try:
+            resp = requests.get(url)
+
+            # RIGA MODIFICATA: Il problema era qui. Togliamo i replace() 
+            # che potrebbero confondere il parser JSON se la risposta è vuota o HTML.
+            symbols_list = json.loads(resp.text) # <-- MODIFICA!
+
         except Exception as e:
             logger.error(e)
 
@@ -318,4 +336,5 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
