@@ -13,7 +13,6 @@ import pandas as pd
 import requests
 import re # Necessario per la funzione clean_text
 import logging
-# ... altre importazioni di main.py ...
 
 def clean_text(text: str) -> str:
         """
@@ -27,7 +26,6 @@ def clean_text(text: str) -> str:
         # 2. Rimuove tutti gli altri tag HTML generici (assicurazione)
         cleaned_text = re.sub(r'<[^>]+>', '', cleaned_text)
         # 3. Pulisce le entità HTML comuni (es. &amp;) e normalizza
-        
         cleaned_text = (
             cleaned_text
             .replace('&amp;', '&')  # Decodifica l'entità &amp;
@@ -63,31 +61,6 @@ class TvDatafeed:
     __signin_headers = {'Referer': 'https://www.tradingview.com'}
     __ws_timeout = 5
 
-    '''
-    @staticmethod
-    def clean_text(text: str) -> str:
-        """
-        Pulisce il testo rimuovendo i tag HTML (es. <em>), entità, 
-        e normalizza i simboli e spazi.
-        """
-        if not text:
-            return ""
-        # 1. Rimuove specificamente i tag <em> e </em>
-        cleaned_text = text.replace('<em>', '').replace('</em>', '')
-        # 2. Rimuove tutti gli altri tag HTML generici (assicurazione)
-        cleaned_text = re.sub(r'<[^>]+>', '', cleaned_text)
-        # 3. Pulisce le entità HTML comuni (es. &amp;) e normalizza
-        
-        cleaned_text = (
-            cleaned_text
-            .replace('&amp;', '&')  # Decodifica l'entità &amp;
-            #.upper()
-            #.replace('&', '_')
-            #.replace(' ', '_')
-        )
-        return cleaned_text
-        '''
-    
     def __init__(
         self,
         username: str = None,
@@ -348,7 +321,6 @@ class TvDatafeed:
         url = "https://symbol-search.tradingview.com/symbol_search/v3/"
         
         # Pulizia dei parametri
-        #symbol = TvDatafeed.clean_text(text)
         symbol = clean_text(text)
         if exchange:
             exchange = TvDatafeed.clean_text(exchange)
@@ -385,10 +357,8 @@ class TvDatafeed:
                 
                 # --- AGGIUNGI QUESTE RIGHE PER LA PULIZIA ---
                 # Applica clean_text alla colonna 'description'
-                #df['description'] = df['description'].apply(TvDatafeed.clean_text)
                 df['description'] = df['description'].apply(clean_text)
                 # [OPZIONALE] Applica clean_text anche a 'symbol' se necessario
-                #df['symbol'] = df['symbol'].apply(TvDatafeed.clean_text)
                 df['symbol'] = df['symbol'].apply(clean_text)
                 # ---------------------------------------------
               
@@ -419,20 +389,3 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
