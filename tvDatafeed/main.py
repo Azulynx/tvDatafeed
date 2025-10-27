@@ -84,12 +84,13 @@ class TvDatafeed:
         # 2. Rimuove tutti gli altri tag HTML generici (assicurazione)
         cleaned_text = re.sub(r'<[^>]+>', '', cleaned_text)
         # 3. Pulisce le entità HTML comuni (es. &amp;) e normalizza
+        
         cleaned_text = (
             cleaned_text
             .replace('&amp;', '&')  # Decodifica l'entità &amp;
-            .upper()
-            .replace('&', '_')
-            .replace(' ', '_')
+            #.upper()
+            #.replace('&', '_')
+            #.replace(' ', '_')
         )
         return cleaned_text
     
@@ -487,6 +488,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
