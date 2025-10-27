@@ -348,7 +348,8 @@ class TvDatafeed:
         url = "https://symbol-search.tradingview.com/symbol_search/v3/"
         
         # Pulizia dei parametri
-        symbol = TvDatafeed.clean_text(text)
+        #symbol = TvDatafeed.clean_text(text)
+        symbol = clean_text(text)
         if exchange:
             exchange = TvDatafeed.clean_text(exchange)
         
@@ -418,6 +419,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
