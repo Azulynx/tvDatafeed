@@ -305,7 +305,7 @@ class TvDatafeed:
         return symbols_list
         '''
 
-        def search_symbol(self, text: str, exchange: str = ''):
+    def search_symbol(self, text: str, exchange: str = ''):
         url = self.__search_url.format(text, exchange)
 
         symbols_list = []
@@ -336,6 +336,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
