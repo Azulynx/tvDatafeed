@@ -336,7 +336,7 @@ class TvDatafeed:
         }
 
         if type:
-            params["type"] = type
+            params["search_type"] = type
         if exchange:
             params["exchange"] = exchange
             
@@ -393,6 +393,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
