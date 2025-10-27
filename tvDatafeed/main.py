@@ -394,6 +394,14 @@ class TvDatafeed:
                 # Converte la lista di dizionari in un DataFrame Pandas
                 # e filtra i campi per mantenere la coerenza con l'output storico di tvDatafeed
                 df = pd.DataFrame(data['symbols'])
+                
+                # --- AGGIUNGI QUESTE RIGHE PER LA PULIZIA ---
+                # Applica clean_text alla colonna 'description'
+                df['description'] = df['description'].apply(clean_text)
+                # [OPZIONALE] Applica clean_text anche a 'symbol' se necessario
+                df['symbol'] = df['symbol'].apply(clean_text)
+                # ---------------------------------------------
+                
                 return df[['symbol', 'description', 'type', 'exchange', 'currency_code', 'country']]
             else:
                 logging.warning("Search failed: 'symbols' field not found in response.")
@@ -421,6 +429,7 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
 
 
 
