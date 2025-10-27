@@ -323,7 +323,7 @@ class TvDatafeed:
         # Pulizia dei parametri
         symbol = clean_text(text)
         if exchange:
-            exchange = TvDatafeed.clean_text(exchange)
+            exchange = clean_text(exchange)
         
         params = {
             "text": symbol,
@@ -389,3 +389,4 @@ if __name__ == "__main__":
             extended_session=False,
         )
     )
+
